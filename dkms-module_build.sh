@@ -18,11 +18,11 @@ dkms build -k "${KERNEL_VERSION}" -m "${KERNEL_MODULE_NAME}" -v "${DKMS_MODULE_V
 dkms install -k "${KERNEL_VERSION}" -m "${KERNEL_MODULE_NAME}" -v "${DKMS_MODULE_VERSION}" --force
 
 if dmesg | grep -q 'initramfs'; then
-  if grep -qE "^ID(_LIKE)?=debian" /etc/os-release; then
+  if dist_test "debian"; then
     update-initramfs -u -k "${KERNEL_VERSION}"
-  elif grep -q "^ID=arch" /etc/os-release; then
+  elif dist_test "arch"; then
     mkinitcpio -P
-  elif grep -q "^ID=fedora" /etc/os-release; then
+  elif dist_test "fedora"; then
     sudo dracut --regenerate-all --force
   else
     echo "Update of initramfs not (yet) supported for your Linux distro. You might want to modify the distro-specific commands."
