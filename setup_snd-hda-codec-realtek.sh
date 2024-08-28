@@ -8,7 +8,7 @@ set -e
 BIN_ABSPATH="$(dirname "$(readlink -f "${0}")")"
 
 KERNEL_MODULE_NAME='snd-hda-codec-realtek'
-DKMS_MODULE_VERSION='0.1'
+DKMS_MODULE_VERSION='0.2'
 
 declare -a QUIRKS=( 'ALC245_FIXUP_CS35L41_SPI_2' 'ALC287_FIXUP_CS35L41_I2C_2' )
 
@@ -70,16 +70,19 @@ if [ $IS_AUTO_PATCH = true ]; then
     AUTO_PATCH_LINE="SND_PCI_QUIRK($ID1, $ID2, "'"'"$PRODUCT"'"'", $TARGET_QUIRK),"
   fi
 fi
-
+echo "AUTO PATCH LINE=$AUTO_PATCH_LINE"
+echo "Enter to continue, Ctrl-C to abort"
+read
 # create the patch file to apply to the source of the snd-hda-codec-realtek kernel module
 if [ $SOURCE_MINOR_VERSION = 8 ]; then
   tee "/usr/src/${KERNEL_MODULE_NAME}-${DKMS_MODULE_VERSION}/patch_realtek.patch" <<EOF
 --- sound/pci/hda/patch_realtek.c.orig
 +++ sound/pci/hda/patch_realtek.c
-@@ -9947,6 +9947,12 @@
+@@ -9947,6 +9947,13 @@
  	SND_PCI_QUIRK(0x103c, 0x89c6, "Zbook Fury 17 G9", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
  	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
  	SND_PCI_QUIRK(0x103c, 0x89d3, "HP EliteBook 645 G9 (MB 89D2)", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
++	 $AUTO_PATCH_LINE
 +  SND_PCI_QUIRK(0x103c, 0x8a06, "HP Dragonfly Folio 13.5 inch G3 2-in-1 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2),
 +  SND_PCI_QUIRK(0x103c, 0x8a29, "HP Envy x360 15-ew0xxx", ALC287_FIXUP_CS35L41_I2C_2),
 +  SND_PCI_QUIRK(0x103c, 0x8a2c, "HP Envy 16-h0xxx", ALC287_FIXUP_CS35L41_I2C_2),
