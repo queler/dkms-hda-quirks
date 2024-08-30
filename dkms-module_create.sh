@@ -15,10 +15,10 @@ DKMS_MODULE_VERSION="${2}"
 # check OS prerequisites --------------------------------------------------------------------------
 
 # perform OS-specific preparation steps
-if grep -qE "^ID(_LIKE)?=debian" /etc/os-release; then
+if dist_test debian; then
   apt install build-essential dkms dwarves
 
-  if grep -q "^ID=ubuntu" /etc/os-release && [ -e "/usr/lib/modules/$(uname -r)/build" ]; then
+  if dist_test "ubuntu" && [ -e "/usr/lib/modules/$(uname -r)/build" ]; then
     # see https://askubuntu.com/questions/1348250/skipping-btf-generation-xxx-due-to-unavailability-of-vmlinux-on-ubuntu-21-04
     cp /sys/kernel/btf/vmlinux "/usr/lib/modules/$(uname -r)/build/"
   fi
@@ -27,7 +27,7 @@ else
 fi
 
 # install linux-headers package if not present 
-if grep -qE "^ID(_LIKE)?=debian" /etc/os-release; then
+if dist_test "debian"; then
   HEADERS_PACKAGE_NAME="linux-headers-${KERNEL_VERSION}"
 
   if ! dpkg -l | grep -q $HEADERS_PACKAGE_NAME; then
@@ -37,9 +37,9 @@ if grep -qE "^ID(_LIKE)?=debian" /etc/os-release; then
     dpkg -l | grep -q $HEADERS_PACKAGE_NAME || \
        { echo "Could not install ${HEADERS_PACKAGE_NAME}. Try installing it manually."; exit 3; }
   fi
-elif grep -q "^ID=arch" /etc/os-release; then
+elif dist_test "arch"; then
   pacman -S pahole dkms base-devel linux-headers
-elif grep -q "^ID=fedora" /etc/os-release; then
+elif dist_test "fedora"; then
   dnf install dwarves dkms kernel-devel kernel-headers  
 else
   echo "Auto-installing kernel headers not (yet) supported for your Linux distro. You might want to modify the distro-specific commands."

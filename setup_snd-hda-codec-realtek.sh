@@ -70,7 +70,9 @@ if [ $IS_AUTO_PATCH = true ]; then
     AUTO_PATCH_LINE="SND_PCI_QUIRK($ID1, $ID2, "'"'"$PRODUCT"'"'", $TARGET_QUIRK),"
   fi
 fi
-
+echo "AUTO PATCH LINE=$AUTO_PATCH_LINE"
+echo "Enter to continue, Ctrl-C to abort"
+read
 # create the patch file to apply to the source of the snd-hda-codec-realtek kernel module
 if [ $SOURCE_MINOR_VERSION = 8 ]; then
   tee "/usr/src/${KERNEL_MODULE_NAME}-${DKMS_MODULE_VERSION}/patch_realtek.patch" <<EOF
